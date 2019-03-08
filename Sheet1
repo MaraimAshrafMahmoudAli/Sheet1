@@ -85,6 +85,18 @@ public class MySpecialArrayUtils {
 
 	}
 
+	public static int[][] transThreePar(int[][] arr, int row, int column) {
+
+		int[][] transThreePar = new int[column][row];
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < column; j++) {
+				transThreePar[j][i] = arr[i][j];
+			}
+		}
+		return transThreePar;
+
+	}
+
 }
 
 
