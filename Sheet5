@@ -1,0 +1,217 @@
+public class Node {
+
+	Object value;
+	Node next;
+
+	/**
+	 * Constructor
+	 * @param value
+	 * @param next
+	 */
+	public Node(Object value, Node next) {
+		this.value = value;
+		this.next = next;
+	}
+}
+
+public class LinkedListStack {
+
+	Node head;
+
+	/**
+	 * Constructor 
+	 * @param head
+	 */
+	public LinkedListStack(Node head) {
+		this.head = head;
+	}
+
+	/**
+	 * add new element to the first of the list
+	 * @param value
+	 */
+	public void add(Object value) {
+		Node newNode = new Node(value, head);
+		head = newNode;
+	}
+
+	/**
+	 * remove the first element of the list
+	 */
+	public void remove() {
+		head = head.next;
+	}
+}
+
+public class IStackClass implements IStack{
+
+	Node a;
+	LinkedListStack Stack = new LinkedListStack(a);
+
+	/**
+	* Removes the element at the top of stack and returns that element.
+	*
+	* @return top of stack element, or through exception if empty
+	*/
+	public Object pop() {
+		Object v = Stack.head.value;
+		Stack.remove();
+		return v;
+	}
+
+	/**
+	* Get the element at the top of stack without removing it from stack.
+	*
+	* @return top of stack element, or through exception if empty
+	*/
+	public Object peek() {
+		return Stack.head.value;
+	}
+
+	/**
+	* Pushes an item onto the top of this stack.
+	*
+	* @param object
+	* to insert
+	*/
+	public void push(Object element) {
+		Stack.add(element);
+	}
+
+	/**
+	* Tests if this stack is empty
+	*
+	* @return true if stack empty
+	*/
+	public boolean isEmpty() {
+		if (Stack.head == null) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	* Returns the number of elements in the stack.
+	*
+	* @return number of elements in the stack
+	*/
+	public int size() {
+		int count = 0;
+		Node n = Stack.head;
+		while (n != null) {
+			count++;
+			n = n.next;
+		}
+		return count;
+	}
+}
+
+
+public class IExpressionEvaluatorClass implements IExpressionEvaluator {
+
+	/**
+	* Takes a symbolic/numeric infix expression as input and converts it to
+	* postfix notation. There is no assumption on spaces between terms or the
+	* length of the term (e.g., two digits symbolic or numeric term)
+	*
+	* @param expression
+	* infix expression
+	* @return postfix expression
+	*/
+	public String infixToPostfix(String expression) {
+
+		String infix = expression;
+		String postfix = "";
+		IStackClass stack = new IStackClass();
+
+		for (int i = 0; i < infix.length(); i++) {
+			Character value = infix.charAt(i);
+			if (value == '(') {
+				stack.push('(');
+			} else if (value == ')') {
+				Character oper = (Character) stack.peek();
+				while (!(oper.equals('(')) && !(stack.isEmpty())) {
+					stack.pop();
+					postfix += oper.charValue();
+					if (!stack.isEmpty()) // Code Added
+					{
+						oper = (Character) stack.peek(); // Code Added
+					}
+				}
+				stack.pop(); // Code Added
+			} else if (value == '+' || value == '-') {
+				if (stack.isEmpty()) {
+					stack.push(value);
+				} else {
+					Character oper = (Character) stack.peek();
+					while (!(stack.isEmpty() || oper.equals('(') || oper.equals(')'))) {
+						oper = (Character) stack.pop(); // Code Updated
+						postfix += oper.charValue();
+					}
+					stack.push(value);
+				}
+			} else if (value == '*' || value == '/') {
+				if (stack.isEmpty()) {
+					stack.push(value);
+				} else {
+					Character oper = (Character) stack.peek();
+					// while condition updated
+					while (!oper.equals(('(')) && !oper.equals(('+')) && !oper.equals(('-')) && !stack.isEmpty()) {
+						oper = (Character) stack.pop(); // Code Updated
+						postfix += oper.charValue();
+					}
+					stack.push(value);
+				}
+			} else {
+				postfix += value;
+			}
+		}
+
+		while (!stack.isEmpty()) {
+			Character oper = (Character) stack.peek();
+			if (!oper.equals(('('))) {
+				stack.pop();
+				postfix += oper.charValue();
+			}
+		}
+		return postfix;
+	}
+
+	/**
+	* Evaluate a postfix numeric expression, with a single space separator
+	*
+	* @param expression
+	* postfix expression
+	* @return the expression evaluated value
+	*/
+	public int evaluate(String expression) {
+
+		IStackClass stack = new IStackClass();
+
+		int x = 0, y = 0;
+		char[] ch = expression.toCharArray();
+		for (char c : ch) {
+			if (c >= '0' && c <= '9') {
+				stack.push((int) (c - '0'));
+			} else {
+				y = (int) stack.pop();
+				x = (int) stack.pop();
+				switch (c) {
+				case '+':
+					stack.push(x + y);
+					break;
+				case '-':
+					stack.push(x - y);
+					break;
+				case '*':
+					stack.push(x * y);
+					break;
+				case '/':
+					stack.push(x / y);
+					break;
+				}
+			}
+		}
+		return (int) stack.pop();
+	}
+}
